@@ -20,10 +20,18 @@ import { ThrottlerModule } from '@nestjs/throttler';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      url: process.env.DATABASE_URL || undefined,
+
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      username: process.env.DB_USERNAME || 'postgres',
+      password: process.env.DB_PASSWORD || 'password',
+      database: process.env.DB_NAME || 'eventful',
+
+      ssl: process.env.DATABASE_URL
+        ? { rejectUnauthorized: false }
+        : false,
+
       autoLoadEntities: true,
       synchronize: true,
     }),
