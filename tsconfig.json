@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "dist",
+    "rootDir": "./src",
+    "outDir": "./dist",
 
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "resolvePackageJsonExports": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "isolatedModules": true,
     "declaration": true,
@@ -13,8 +12,9 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2024",
+    "target": "es2019",
     "sourceMap": true,
+    "types": ["node", "jest"],
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
@@ -23,5 +23,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test"]
 }
