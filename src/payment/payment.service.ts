@@ -8,7 +8,6 @@ import * as crypto from 'crypto'
 import { EventAttendee } from 'src/events/events-entity.entity';
 import 'dotenv/config'
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { raw } from 'express';
 
 @Injectable()
 export class PaymentService {
@@ -25,6 +24,22 @@ export class PaymentService {
         @InjectRepository(EventAttendee)
         private eventAttendeeRepo: Repository<EventAttendee>
     ) {}
+
+    private getEventPrice(event: Event): number {
+        if (!event.tickets || event.tickets.length === 0) {
+            return 0;
+        }
+
+        const prices = event.tickets
+            .map(ticket => parseFloat(ticket.price || '0'))
+            .filter(price => !isNaN(price));
+
+        if (prices.length === 0) {
+            return 0;
+        }
+
+        return Math.min(...prices);
+    }
 
     async initPayment(eventId: string, userId: string) {
         const event = await this.eventRepo.findOne({ where: { id: eventId } })
@@ -47,10 +62,12 @@ export class PaymentService {
 
         const reference = `EVT_${Date.now()}_${userId}`
 
+        const eventPrice = this.getEventPrice(event);
+
         const payment = this.paymentRepo.create({
             user: { id: userId },
             event: { id: eventId },
-            amount: event.price * 100,
+            amount: eventPrice * 100,
             reference
         })
 
@@ -62,7 +79,7 @@ export class PaymentService {
 
             {
                 email: payment.user.email,
-                amount: event.price * 100,
+                amount: eventPrice * 100,  
                 reference,
             },
         

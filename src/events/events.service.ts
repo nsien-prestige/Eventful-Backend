@@ -140,7 +140,8 @@ export class EventsService {
 
         const attendance = this.attendeeRepo.create({
             user: { id: userId },
-            event: { id: eventId }
+            event: { id: eventId },
+            qrHash: randomBytes(16).toString('hex')
         });
 
         await this.attendeeRepo.save(attendance);
@@ -230,11 +231,10 @@ export class EventsService {
             throw new ForbiddenException('You are not the creator of this event')
         }
 
-        await this.attendeeRepo.delete({
-            event: { id: eventId } 
-        })
+        await this.eventRepo.delete(eventId)
+        await this.cache.del('events:all')
 
-        return this.eventRepo.delete(eventId)
+        return { message: "Event deleted successfully" }
     }
 
 }

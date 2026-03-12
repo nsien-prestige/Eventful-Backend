@@ -10,7 +10,9 @@ export class Notification {
     @ManyToOne(() => User)
         user: User
 
-    @ManyToOne(() => Event)
+    @ManyToOne(() => Event, {
+        onDelete: 'CASCADE'
+    })
         event: Event
 
     @Column()

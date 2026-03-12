@@ -1,70 +1,87 @@
+import { User } from "src/users/users.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../users/users.entity";
 
 export enum EventStatus {
     ACTIVE = 'ACTIVE',
-    CANCELLED = 'CANCELLED',
-    CLOSED = 'CLOSED'
+    CLOSED = 'CLOSED',
+    CANCELLED = 'CANCELLED'
 }
 
 @Entity()
 export class Event {
-
     @PrimaryGeneratedColumn('uuid')
-    id: string
+    id: string;
 
     @Column()
-    title: string
+    title: string;
 
-    @Column()
-    description: string
-
-    @Column({ type: 'int' })
-    price: number
-
+    @Column({ type: 'text', nullable: true }) 
+    description: string;
+    
     @Column({
         type: 'enum',
         enum: EventStatus,
         default: EventStatus.ACTIVE
     })
-    status: EventStatus
+    status: EventStatus;
 
     @Column({ unique: true })
-    publicId: string
+    publicId: string;
 
     @Column({ type: 'timestamptz' })
-    date: Date
+    date: Date;
 
     @Column({ nullable: true })
-    imageUrl: string
+    imageUrl: string;
 
     @Column({ nullable: true })
-    category: string
+    category: string;
 
     @Column({ type: 'int', default: 0 })
-    viewCount: number
+    viewCount: number;
 
     @Column({ type: 'int', nullable: true })
-    capacity: number
+    capacity: number;
 
     @Column({ type: 'timestamptz', nullable: true })
     endDate: Date;
 
-    @Column({ nullable: true })
-    location: string;
+    @Column()
+    organizer: string;
 
-    @Column({ default: false })
-    isOnline: boolean;
+    @Column({ nullable: true })
+    eventType: string;
+
+    @Column({ type: 'text' })
+    summary: string;
+
+    @Column({ nullable: true })
+    venueAddress: string;
+
+    @Column({ nullable: true })
+    locationType: string; 
 
     @Column({ nullable: true })
     meetingLink: string;
 
+    @Column({ type: 'float', nullable: true })
+    latitude: number;
+
+    @Column({ type: 'float', nullable: true })
+    longitude: number;
+
     @Column({ nullable: true })
     refundPolicy: string;
+
+    @Column({ type: 'jsonb', nullable: true })  
+    agenda: any[];
+
+    @Column({ type: 'jsonb', nullable: true }) 
+    tickets: any[];
 
     @ManyToOne(() => User, user => user.events, {
         eager: true,
         onDelete: 'CASCADE'
     })
-    creator: User
+    creator: User;
 }
