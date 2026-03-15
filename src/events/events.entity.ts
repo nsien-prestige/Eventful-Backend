@@ -1,5 +1,5 @@
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "src/users/users.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 export enum EventStatus {
     ACTIVE = 'ACTIVE',
@@ -7,7 +7,7 @@ export enum EventStatus {
     CANCELLED = 'CANCELLED'
 }
 
-@Entity()
+@Entity('event')
 export class Event {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -15,9 +15,51 @@ export class Event {
     @Column()
     title: string;
 
-    @Column({ type: 'text', nullable: true }) 
+    @Column({ type: 'text', nullable: true })
     description: string;
-    
+
+    @Column({ type: 'text', nullable: true })
+    summary: string;
+
+    @Column({ nullable: true })
+    organizer: string;
+
+    @Column({ nullable: true })
+    eventType: string;
+
+    @Column({ nullable: true })
+    category: string;
+
+    @Column({ nullable: true })
+    imageUrl: string;
+
+    @Column({ type: 'timestamp with time zone' })
+    date: Date;
+
+    @Column({ type: 'timestamp with time zone', nullable: true })
+    endDate: Date;
+
+    @Column({ nullable: true })
+    venueAddress: string;
+
+    @Column({ nullable: true })
+    locationType: string;
+
+    @Column({ nullable: true })
+    meetingLink: string;
+
+    @Column({ type: 'decimal', precision: 10, scale: 6, nullable: true })
+    latitude: number;
+
+    @Column({ type: 'decimal', precision: 10, scale: 6, nullable: true })
+    longitude: number;
+
+    @Column({ type: 'jsonb', nullable: true, default: '[]' })
+    agenda: any[];
+
+    @Column({ type: 'jsonb', nullable: true, default: '[]' })
+    tickets: any[];
+
     @Column({
         type: 'enum',
         enum: EventStatus,
@@ -28,60 +70,21 @@ export class Event {
     @Column({ unique: true })
     publicId: string;
 
-    @Column({ type: 'timestamptz' })
-    date: Date;
-
-    @Column({ nullable: true })
-    imageUrl: string;
-
-    @Column({ nullable: true })
-    category: string;
-
-    @Column({ type: 'int', default: 0 })
+    @Column({ default: 0 })
     viewCount: number;
 
-    @Column({ type: 'int', nullable: true })
+    @Column({ nullable: true })
     capacity: number;
-
-    @Column({ type: 'timestamptz', nullable: true })
-    endDate: Date;
-
-    @Column({ nullable: true })
-    organizer: string;
-
-    @Column({ nullable: true })
-    eventType: string;
-
-    @Column({ type: 'text', nullable: true })
-    summary: string;
-
-    @Column({ nullable: true })
-    venueAddress: string;
-
-    @Column({ nullable: true })
-    locationType: string; 
-
-    @Column({ nullable: true })
-    meetingLink: string;
-
-    @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
-    latitude: number;
-
-    @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
-    longitude: number;
 
     @Column({ nullable: true })
     refundPolicy: string;
 
-    @Column({ type: 'jsonb', nullable: true })  
-    agenda: any[];
-
-    @Column({ type: 'jsonb', nullable: true }) 
-    tickets: any[];
-
-    @ManyToOne(() => User, user => user.events, {
-        eager: true,
-        onDelete: 'CASCADE'
-    })
+    @ManyToOne(() => User, user => user.events, { onDelete: 'CASCADE' })
     creator: User;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
