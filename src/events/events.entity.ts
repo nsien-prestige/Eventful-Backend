@@ -18,10 +18,10 @@ export class Event {
     @Column({ type: 'text', nullable: true })
     description: string;
 
-    @Column({ type: 'text', nullable: true })
+    @Column({ type: 'text' })
     summary: string;
 
-    @Column({ nullable: true })
+    @Column()
     organizer: string;
 
     @Column({ nullable: true })
