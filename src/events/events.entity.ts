@@ -46,13 +46,13 @@ export class Event {
     @Column({ type: 'timestamptz', nullable: true })
     endDate: Date;
 
-    @Column()
+    @Column({ nullable: true })
     organizer: string;
 
     @Column({ nullable: true })
     eventType: string;
 
-    @Column({ type: 'text' })
+    @Column({ type: 'text', nullable: true })
     summary: string;
 
     @Column({ nullable: true })
@@ -64,10 +64,10 @@ export class Event {
     @Column({ nullable: true })
     meetingLink: string;
 
-    @Column({ type: 'float', nullable: true })
+    @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
     latitude: number;
 
-    @Column({ type: 'float', nullable: true })
+    @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
     longitude: number;
 
     @Column({ nullable: true })
