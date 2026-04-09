@@ -8,6 +8,7 @@ import * as crypto from 'crypto'
 import { EventAttendee } from 'src/events/events-entity.entity';
 import 'dotenv/config'
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { User } from 'src/users/users.entity';
 
 @Injectable()
 export class PaymentService {
@@ -22,7 +23,11 @@ export class PaymentService {
         private paymentRepo: Repository<Payment>,
 
         @InjectRepository(EventAttendee)
-        private eventAttendeeRepo: Repository<EventAttendee>
+        private eventAttendeeRepo: Repository<EventAttendee>,
+
+        // FIX 2: inject User repo so we can fetch the email
+        @InjectRepository(User)
+        private userRepo: Repository<User>
     ) {}
 
     private getEventPrice(event: Event): number {
@@ -60,6 +65,13 @@ export class PaymentService {
             throw new BadRequestException('You have already paid for this event')
         }
 
+        // FIX 2: fetch the actual user so we have their email for Paystack
+        const user = await this.userRepo.findOne({ where: { id: userId } })
+
+        if (!user) {
+            throw new NotFoundException('User not found')
+        }
+
         const reference = `EVT_${Date.now()}_${userId}`
 
         const eventPrice = this.getEventPrice(event);
@@ -67,19 +79,19 @@ export class PaymentService {
         const payment = this.paymentRepo.create({
             user: { id: userId },
             event: { id: eventId },
-            amount: eventPrice * 100,
+            amount: eventPrice * 100, // stored in kobo
             reference
         })
 
         await this.paymentRepo.save(payment)
 
-        //Initialize PayStack
+        // Initialize Paystack — now using real user email
         const res = await axios.post(
             'https://api.paystack.co/transaction/initialize', 
 
             {
-                email: payment.user.email,
-                amount: eventPrice * 100,  
+                email: user.email,       // FIX 2: use fetched user email
+                amount: eventPrice * 100, // kobo
                 reference,
             },
         
@@ -123,17 +135,20 @@ export class PaymentService {
     async handlePaystackWebhook(payload: any, signature: string, rawBody: Buffer) {
         this.verifySignature(rawBody, signature)
 
-        if(payload.event !== 'charge.success') return
+        if (payload.event !== 'charge.success') return
         
-        const { reference, amount} = payload.data
+        const { reference, amount } = payload.data
 
+        // FIX 4: load event with creator relation so cache.del works
         const payment = await this.paymentRepo.findOne({
-            where: { reference }
+            where: { reference },
+            relations: ['event', 'event.creator', 'user']
         })
 
         if (!payment) return
 
-        if (payment.amount !== amount / 100) {
+        // FIX 3: both values are in kobo — compare directly
+        if (payment.amount !== amount) {
             throw new Error('Amount mismatch');
         }
 
@@ -146,8 +161,8 @@ export class PaymentService {
 
         const alreadyAttending = await this.eventAttendeeRepo.findOne({
             where: {
-                user: { id: payment.user.id},
-                event: { id: payment.event.id}
+                user: { id: payment.user.id },
+                event: { id: payment.event.id }
             }
         })
 
@@ -168,9 +183,9 @@ export class PaymentService {
         attendee.qrHash = qrHash
 
         await this.eventAttendeeRepo.save(attendee)
-        
-        await this.cache.del(`analytics:creator:${payment.event.creator.id}`);
 
+        // FIX 4: creator is now loaded via the relation above
+        await this.cache.del(`analytics:creator:${payment.event.creator.id}`);
     }
 
     private verifySignature(rawBody: Buffer, signature: string) {

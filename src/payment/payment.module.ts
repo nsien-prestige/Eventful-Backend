@@ -5,13 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Payment } from './payment.entity';
 import { Event } from 'src/events/events.entity';
 import { EventAttendee } from 'src/events/events-entity.entity';
+import { User } from 'src/users/users.entity';
 
 @Module({
   imports : [
     TypeOrmModule.forFeature([
       Payment,
       Event,
-      EventAttendee
+      EventAttendee,
+      User
     ])
   ],
   controllers: [PaymentController],
