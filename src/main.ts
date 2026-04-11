@@ -23,8 +23,8 @@ async function bootstrap() {
       'http://127.0.0.1:4173',
       'http://localhost:3000',
       'http://127.0.0.1:3000',
-      'https://eventful-frontend-five.vercel.app/',
-      'https://eventful-frontend-heib.vercel.app/',
+      'https://eventful-frontend-five.vercel.app',
+      'https://eventful-frontend-heib.vercel.app',
       ...envOrigins,
     ]),
   );
