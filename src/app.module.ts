@@ -32,10 +32,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
         ? { rejectUnauthorized: false }
         : false,
 
-      extra: process.env.DATABASE_URL
-        ? { ssl: { rejectUnauthorized: false } }
-        : {},
-
       autoLoadEntities: true,
       synchronize: true,
     }),
