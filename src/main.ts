@@ -59,7 +59,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document)
 
   app.enableCors({
-    origin: true,
+    origin: [
+      'https://eventful-frontend-five.vercel.app/',
+    ],
     
     credentials: true,
   })
